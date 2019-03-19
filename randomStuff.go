@@ -95,6 +95,14 @@ func getRandomFromSliceStr(sl []string) string {
 	return sl[randInt(0, l-1)]
 }
 
+func randomString(str ...string) string {
+	l := len(str)
+	if l < 1 {
+		return "Null"
+	}
+	return str[randInt(0, l-1)]
+}
+
 func randomSeed() int64 {
 	seed := time.Now().UnixNano()
 	rand.Seed(seed)
