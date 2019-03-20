@@ -274,6 +274,7 @@ func encounterLiner() ship {
 
 func encounterMerchant() ship {
 	ship := &ship{}
+	ship.spikeDrive = roll1dX(2, 1)
 	r := roll1dX(6, 0)
 	if r < 5 {
 		ship.shipType = "Free Trader"
@@ -335,6 +336,8 @@ func encounterMerchant() ship {
 
 	return *ship
 }
+
+
 
 func systemType(security, traffic int) int {
 	if security == safetySecure && traffic == trafficBackwater {
