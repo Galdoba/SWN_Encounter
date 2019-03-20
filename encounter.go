@@ -272,6 +272,70 @@ func encounterLiner() ship {
 	return *ship
 }
 
+func encounterMerchant() ship {
+	ship := &ship{}
+	r := roll1dX(6, 0)
+	if r < 5 {
+		ship.shipType = "Free Trader"
+		ship.crewOnboard = roll1dX(3, 3)
+		goodsTypes := strconv.Itoa(roll1dX(6, 2))
+		tonnage := strconv.Itoa(roll1dX(6, 2) * 20)
+		passengers := strconv.Itoa(rollXdY(2, 6) - 2)
+		worth := ""
+		worth = strconv.Itoa(rollXdY(3, 6) * 10000)
+		if roll1dX(6, 0) == 6 {
+			worth = strconv.Itoa(roll1dX(6, 0) * 100000)
+		}
+		cargo := goodsTypes + " different types of cargo, with overall tonnage of " + tonnage + " tons for all categories. Total value of the cargo is " + worth + " credits. There are " + passengers + " passengers on board."
+		ship.cargo = cargo
+		ship.shipClass = "Frigate"
+	}
+	if r == 5 {
+		ship.shipType = "Freighter"
+		ship.shipClass = "Cruiser"
+		ship.crewOnboard = 12
+		r1 := roll1dX(6, 0)
+		ship.shipDescr = "Subsidized Merchant"
+		cargo := strconv.Itoa(rollXdY(2, 6) * 100)
+		ship.cargo = cargo + " tons of cargo"
+		if r1 > 2 {
+			ship.shipDescr = "Corporate Freighter"
+			cargo := strconv.Itoa(roll1dX(6, 0) * 1000)
+			ship.cargo = cargo + " tons of cargo"
+		}
+		ship.cargo = ship.cargo + ". " + strconv.Itoa(rollXdY(2, 6)) + " Armed Guards and " + strconv.Itoa(rollXdY(3, 6)) + " passengers are on this ship"
+	}
+	if r == 6 {
+		ship.shipType = "Convoy"
+		traders := strconv.Itoa(roll1dX(3, 3)) + " Free Traders"
+		merchants := strconv.Itoa(roll1dX(3, -1)) + " Subsidized Traders of Freighters"
+		escNum := roll1dX(3, 0)
+		escort := strconv.Itoa(escNum) + " Escorts"
+		ship.shipClass = traders + ", " + merchants + ", " + escort
+		ship.shipDescr = "Escort consists of"
+		for i := 0; i < escNum; i++ {
+			re := roll1dX(6, 0)
+			escShip := ""
+			if re < 4 {
+				escShip = " Patrol Gunship"
+			}
+			if re == 4 || re == 5 {
+				escShip = " A pair of Fighters"
+			}
+			if re == 6 {
+				escShip = " Patrol Frigate"
+			}
+			if i > 0 {
+				escShip = "," + escShip
+			}
+			ship.shipDescr = ship.shipDescr + escShip
+		}
+
+	}
+
+	return *ship
+}
+
 func systemType(security, traffic int) int {
 	if security == safetySecure && traffic == trafficBackwater {
 		//Middle of Nowhere
@@ -345,11 +409,11 @@ func main() {
 	//fmt.Println("result:", a1-1)
 
 	fmt.Println("--------------------")
-	reportShip(encounterLiner())
+	reportShip(encounterMerchant())
 	fmt.Println("--------------------")
-	reportShip(encounterLiner())
+	reportShip(encounterMerchant())
 	fmt.Println("--------------------")
-	reportShip(encounterLiner())
+	reportShip(encounterMerchant())
 
 }
 
