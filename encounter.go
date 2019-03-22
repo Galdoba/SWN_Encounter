@@ -86,18 +86,19 @@ func (ship *ship) toStrings() []string {
 	}
 
 	lines = append(lines, "Crew skill: +"+strconv.Itoa(ship.crewSkill))
-	if len(ship.cargo) > 0 {
-		lines = append(lines, "Cargo: ")
-		for i := range ship.cargo {
-			lines = append(lines, ship.cargo[i])
-		}
-	}
 	if ship.spikeDrive == 0 {
 		lines = append(lines, "Drives: System Drives")
 	} else {
 		lines = append(lines, "Drives: Spike-"+strconv.Itoa(ship.spikeDrive))
 	}
 	lines = append(lines, "Sensor mod: +"+strconv.Itoa(ship.sensorMod))
+	if len(ship.cargo) > 0 {
+		lines = append(lines, "Cargo: ")
+		for i := range ship.cargo {
+			lines = append(lines, ship.cargo[i])
+		}
+	}
+
 	return lines
 }
 
@@ -301,88 +302,223 @@ func encounterYaht() ship {
 	return *ship
 }
 
-func encounterFreeTrader() ship {
+func encounterFreeTraderShip() ship {
 	ship := &ship{}
 	ship.spikeDrive = roll1dX(3, 0)
 	ship.shipType = "Free Trader"
 	ship.crewOnboard = roll1dX(3, 3)
 	goodsTypes := strconv.Itoa(roll1dX(6, 2))
-	
+	ship.cargo = append(ship.cargo, goodsTypes+" different types of cargo")
 	tonnage := strconv.Itoa(roll1dX(6, 2) * 20)
-	ship.passengers = strconv.Itoa(rollXdY(2, 6) - 2)
-	// worth := ""
-	// worth = strconv.Itoa(rollXdY(3, 6) * 10000)
-	// if roll1dX(6, 0) == 6 {
-	// 	worth = strconv.Itoa(roll1dX(6, 0) * 100000)
-	// }
-	// cargo := goodsTypes + " different types of cargo, with overall tonnage of " + tonnage + " tons for all categories. Total value of the cargo is " + worth + " credits. There are " + passengers + " passengers on board."
-	//	ship.cargo = cargo
+	ship.cargo = append(ship.cargo, "Overall tonnage of cargo: "+tonnage+" tons for all categories")
+	ship.passengers = rollXdY(2, 6) - 2
+	worth := strconv.Itoa(rollXdY(3, 6) * 10000)
+	if roll1dX(6, 0) == 6 {
+		worth = strconv.Itoa(roll1dX(6, 0) * 100000)
+	}
+	ship.cargo = append(ship.cargo, "Total value of the cargo is "+worth+" credits.")
 	ship.shipClass = "Frigate"
+	return *ship
+}
+
+func encounterFreighterShip() ship {
+	ship := &ship{}
+	ship.spikeDrive = roll1dX(2, 1)
+	ship.shipType = "Freighter"
+	ship.shipClass = "Cruiser"
+	ship.crewOnboard = 12
+	ship.passengers = rollXdY(3, 6)
+	ship.guards = rollXdY(2, 6)
+	r1 := roll1dX(6, 0)
+	if r1 > 2 {
+		ship.shipDescr = "Corporate Freighter"
+		ship.cargo = append(ship.cargo, strconv.Itoa(roll1dX(6, 0)*1000)+" tons of cargo")
+	} else {
+		ship.shipDescr = "Subsidized Merchant"
+		ship.cargo = append(ship.cargo, strconv.Itoa(rollXdY(2, 6)*100)+" tons of cargo")
+	}
+	return *ship
+}
+
+func encounterConvoy() ship {
+	ship := &ship{}
+	ship.spikeDrive = roll1dX(2, 1)
+	ship.shipType = "Convoy"
+	traders := strconv.Itoa(roll1dX(3, 3)) + " Free Traders"
+	merchants := strconv.Itoa(roll1dX(3, -1)) + " Subsidized Traders of Freighters"
+	escNum := roll1dX(3, 0)
+	escort := strconv.Itoa(escNum) + " Escorts"
+	ship.shipClass = traders + ", " + merchants + ", " + escort
+	ship.shipDescr = "Escort consists of"
+	for i := 0; i < escNum; i++ {
+		re := roll1dX(6, 0)
+		escShip := ""
+		if re < 4 {
+			escShip = " Patrol Gunship"
+		}
+
+		if re == 4 || re == 5 {
+			escShip = " A pair of Fighters"
+		}
+		if re == 6 {
+			escShip = " Patrol Frigate"
+		}
+		if i > 0 {
+			escShip = "," + escShip
+		}
+		ship.shipDescr = ship.shipDescr + escShip
+	}
+	return *ship
+}
+
+func encounterPatrolFrigateShip() ship {
+	ship := &ship{}
+	ship.shipType = "Patrol Frigate"
+	ship.shipClass = "Frigate"
+	ship.crewSkill = roll1dX(2, 1)
+	ship.spikeDrive = roll1dX(4, -1)
+	ship.crewOnboard = roll1dX(4, 0) * 10 / 2
+	ship.guards = ship.crewOnboard
 
 	return *ship
 }
 
-func encounterMerchant() ship {
+func encounterPatrolGunship() ship {
 	ship := &ship{}
-	ship.spikeDrive = roll1dX(2, 1)
-	r := roll1dX(6, 0)
-	if r < 5 {
-		ship.shipType = "Free Trader"
-		ship.crewOnboard = roll1dX(3, 3)
-		// goodsTypes := strconv.Itoa(roll1dX(6, 2))
-		// tonnage := strconv.Itoa(roll1dX(6, 2) * 20)
-		// passengers := strconv.Itoa(rollXdY(2, 6) - 2)
-		// worth := ""
-		// worth = strconv.Itoa(rollXdY(3, 6) * 10000)
-		// if roll1dX(6, 0) == 6 {
-		// 	worth = strconv.Itoa(roll1dX(6, 0) * 100000)
-		// }
-		// cargo := goodsTypes + " different types of cargo, with overall tonnage of " + tonnage + " tons for all categories. Total value of the cargo is " + worth + " credits. There are " + passengers + " passengers on board."
-		//	ship.cargo = cargo
-		ship.shipClass = "Frigate"
-	}
-	if r == 5 {
-		ship.shipType = "Freighter"
-		ship.shipClass = "Cruiser"
-		ship.crewOnboard = 12
-		r1 := roll1dX(6, 0)
-		ship.shipDescr = "Subsidized Merchant"
-		// cargo := strconv.Itoa(rollXdY(2, 6) * 100)
-		//	ship.cargo = cargo + " tons of cargo"
-		if r1 > 2 {
-			ship.shipDescr = "Corporate Freighter"
-			// cargo := strconv.Itoa(roll1dX(6, 0) * 1000)
-			//		ship.cargo = cargo + " tons of cargo"
-		}
-		//	ship.cargo = ship.cargo + ". " + strconv.Itoa(rollXdY(2, 6)) + " Armed Guards and " + strconv.Itoa(rollXdY(3, 6)) + " passengers are on this ship"
-	}
-	if r == 6 {
-		ship.shipType = "Convoy"
-		traders := strconv.Itoa(roll1dX(3, 3)) + " Free Traders"
-		merchants := strconv.Itoa(roll1dX(3, -1)) + " Subsidized Traders of Freighters"
-		escNum := roll1dX(3, 0)
-		escort := strconv.Itoa(escNum) + " Escorts"
-		ship.shipClass = traders + ", " + merchants + ", " + escort
-		ship.shipDescr = "Escort consists of"
-		for i := 0; i < escNum; i++ {
-			re := roll1dX(6, 0)
-			escShip := ""
-			if re < 4 {
-				escShip = " Patrol Gunship"
-			}
-			if re == 4 || re == 5 {
-				escShip = " A pair of Fighters"
-			}
-			if re == 6 {
-				escShip = " Patrol Frigate"
-			}
-			if i > 0 {
-				escShip = "," + escShip
-			}
-			ship.shipDescr = ship.shipDescr + escShip
-		}
+	ship.shipType = "Patrol Gunship"
+	ship.shipClass = "Fighter"
+	ship.crewSkill = roll1dX(2, 1)
+	ship.spikeDrive = roll1dX(4, -1)
+	ship.crewOnboard = roll1dX(6, 4)
+	ship.guards = roll1dX(6, 4)
+	return *ship
+}
 
+func encounterFighterWing() ship {
+	ship := &ship{}
+	ship.shipType = "Fighter Wing"
+	ship.shipClass = "Fighter"
+	ship.shipDescr = strconv.Itoa(roll1dX(3, 1)) + " fighters in a wing"
+	ship.crewSkill = roll1dX(3, 1)
+	ship.spikeDrive = roll1dX(3, -1)
+	ship.crewOnboard = roll1dX(2, 0)
+	return *ship
+}
+
+func encounterCombatFrigate() ship {
+	ship := &ship{}
+	ship.shipType = "Combat Frigate"
+	ship.shipClass = "Frigate"
+	ship.shipDescr = "Heavily armed small warship"
+	ship.crewSkill = roll1dX(4, 1)
+	ship.spikeDrive = roll1dX(3, 0)
+	ship.crewOnboard = 50
+	ship.guards = 50
+	return *ship
+}
+
+func encounterLightCruiser() ship {
+	ship := &ship{}
+	ship.shipType = "Light Cruiser"
+	ship.shipClass = "Cruiser"
+	ship.shipDescr = "Fast, heavily armed, but lightly armored warship designed for commerse raiding and skirmishing"
+	ship.crewSkill = roll1dX(4, 1)
+	ship.spikeDrive = roll1dX(3, 0)
+	ship.crewOnboard = 100
+	ship.guards = 50
+	sc := roll1dX(6, 0)
+	if sc == 1 || sc == 2 {
+		ship.cargo = append(ship.cargo, "Support Craft: None")
 	}
+	if sc == 3 || sc == 4 || sc == 5 {
+		ftrs := roll1dX(3, 2)
+		ship.cargo = append(ship.cargo, "Space Craft: "+strconv.Itoa(ftrs)+" x Fighter")
+	}
+	if sc == 6 {
+		ftrs := roll1dX(3, 3)
+		ship.cargo = append(ship.cargo, "Space Craft: "+strconv.Itoa(ftrs)+" x Fighter")
+		gnShp := roll1dX(2, 0)
+		ship.cargo = append(ship.cargo, "Space Craft: "+strconv.Itoa(gnShp)+" x Patrol Gunship")
+	}
+	return *ship
+}
+
+func encounterHeavyCruiser() ship {
+	ship := &ship{}
+	ship.shipType = "Heavy Cruiser"
+	ship.shipClass = "Cruiser"
+	ship.shipDescr = "Large and dangerous warship designed for combat"
+	ship.crewSkill = roll1dX(4, 1)
+	ship.spikeDrive = roll1dX(3, 0)
+	ship.crewOnboard = 100
+	ship.guards = roll1dX(6, 0)*10 + 50
+
+	ftrs := roll1dX(6, 3)
+	ship.cargo = append(ship.cargo, "Space Craft: "+strconv.Itoa(ftrs)+" x Fighter")
+	gnShp := roll1dX(3, 2)
+	ship.cargo = append(ship.cargo, "Space Craft: "+strconv.Itoa(gnShp)+" x Patrol Gunship")
+	pFrgt := roll1dX(3, -1)
+	if pFrgt > 0 {
+		ship.cargo = append(ship.cargo, "Space Craft: "+strconv.Itoa(pFrgt)+" x Patrol Frigate")
+	}
+	return *ship
+}
+
+func encounterBattleship() ship {
+	ship := &ship{}
+	ship.shipType = "Battleship"
+	ship.shipClass = "Capital Ship"
+	ship.shipDescr = "Most powerful ship space polity can produce"
+	ship.crewSkill = roll1dX(4, 1)
+	ship.spikeDrive = roll1dX(2, 1)
+	ship.crewOnboard = roll1dX(4, 0) * 100
+	ship.guards = roll1dX(4, 0) * 100
+	gnShp := roll1dX(3, 2)
+	ship.cargo = append(ship.cargo, "Space Craft: "+strconv.Itoa(gnShp)+" x Patrol Gunship (no FTL)")
+	btlGrp := roll1dX(6, 0)
+	if btlGrp > 2 {
+		ship.cargo = append(ship.cargo, "Battle Group consist of:")
+		lc := roll1dX(3, -1)
+		cf := roll1dX(3, 2)
+		pf := roll1dX(4, 1)
+		pGnShip := rollXdY(2, 6)
+		if lc > 0 {
+			ship.cargo = append(ship.cargo, "Light Cruiser x "+strconv.Itoa(lc))
+		}
+		ship.cargo = append(ship.cargo, "Combat Frigate x "+strconv.Itoa(cf))
+		ship.cargo = append(ship.cargo, "Patrol Frigate x "+strconv.Itoa(pf))
+		ship.cargo = append(ship.cargo, "Patrol Gunship (with FTL) x "+strconv.Itoa(pGnShip))
+	} else {
+		ship.cargo = append(ship.cargo, "Battleship is alone")
+	}
+
+	return *ship
+}
+
+func encounterCarrier() ship {
+	ship := &ship{}
+	ship.shipType = "Carrier"
+	ship.shipClass = "Capital Ship"
+	ship.shipDescr = "The largest capital ship"
+	ship.crewSkill = roll1dX(4, 1)
+	ship.spikeDrive = roll1dX(2, 1)
+	ship.crewOnboard = 1000
+	ship.guards = roll1dX(50, 0) * 10 + 500
+	ftrs := rollXdY(2, 6) + 20
+	ship.cargo = append(ship.cargo, "Space Craft: "+strconv.Itoa(ftrs)+" x Fighters (no FTL)")
+	gnShp := rollXdY(2, 6) + 3
+	ship.cargo = append(ship.cargo, "Space Craft: "+strconv.Itoa(gnShp)+" x Patrol Gunship (no FTL)")
+		ship.cargo = append(ship.cargo, "Battle Group consist of:")
+		lc := roll1dX(3, -1)
+		cf := roll1dX(3, 2)
+		pf := roll1dX(4, 1)
+		pGnShip := rollXdY(2, 6)
+		if lc > 0 {
+			ship.cargo = append(ship.cargo, "Light Cruiser x "+strconv.Itoa(lc))
+		}
+		ship.cargo = append(ship.cargo, "Combat Frigate x "+strconv.Itoa(cf))
+		ship.cargo = append(ship.cargo, "Patrol Frigate x "+strconv.Itoa(pf))
+		ship.cargo = append(ship.cargo, "Patrol Gunship (with FTL) x "+strconv.Itoa(pGnShip))
 
 	return *ship
 }
@@ -460,11 +596,11 @@ func main() {
 	//fmt.Println("result:", a1-1)
 
 	fmt.Println("--------------------")
-	reportShip(encounterSalvageShip())
+	reportShip(encounterCarrier())
 	fmt.Println("--------------------")
-	reportShip(encounterMiningShip())
+	reportShip(encounterCarrier())
 	fmt.Println("--------------------")
-	reportShip(encounterProspectorShip())
+	reportShip(encounterCarrier())
 
 }
 
