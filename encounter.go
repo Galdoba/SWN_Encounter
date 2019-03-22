@@ -301,6 +301,27 @@ func encounterYaht() ship {
 	return *ship
 }
 
+func encounterFreeTrader() ship {
+	ship := &ship{}
+	ship.spikeDrive = roll1dX(3, 0)
+	ship.shipType = "Free Trader"
+	ship.crewOnboard = roll1dX(3, 3)
+	goodsTypes := strconv.Itoa(roll1dX(6, 2))
+	
+	tonnage := strconv.Itoa(roll1dX(6, 2) * 20)
+	ship.passengers = strconv.Itoa(rollXdY(2, 6) - 2)
+	// worth := ""
+	// worth = strconv.Itoa(rollXdY(3, 6) * 10000)
+	// if roll1dX(6, 0) == 6 {
+	// 	worth = strconv.Itoa(roll1dX(6, 0) * 100000)
+	// }
+	// cargo := goodsTypes + " different types of cargo, with overall tonnage of " + tonnage + " tons for all categories. Total value of the cargo is " + worth + " credits. There are " + passengers + " passengers on board."
+	//	ship.cargo = cargo
+	ship.shipClass = "Frigate"
+
+	return *ship
+}
+
 func encounterMerchant() ship {
 	ship := &ship{}
 	ship.spikeDrive = roll1dX(2, 1)
