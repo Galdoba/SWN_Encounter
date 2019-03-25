@@ -49,13 +49,105 @@ func safetyALL() []int {
 	return saf
 }
 
-func shipEncounter(system int) string {
+func shipEncounter(system int) ship {
 	r := roll1dX(10, 0)
-	switch r {
-	case 1:
-		return "Slav"
-	}
-	return "Error"
+
+	shipsMap := make(map[int]ship)
+	key := system*100 + r
+	ship := errorShip()
+	fmt.Println("shipEncounter()", "r =", r, "system =", system, "KEY =", key)
+	shipsMap[101] = SalvageMiningProspector()
+	shipsMap[102] = SalvageMiningProspector()
+	shipsMap[103] = SalvageMiningProspector()
+	shipsMap[104] = CourierScout()
+	shipsMap[105] = ResearchSurvey()
+	shipsMap[106] = Merchant()
+	shipsMap[107] = Merchant()
+	shipsMap[108] = Merchant()
+	shipsMap[109] = Patrol()
+	shipsMap[110] = PiratePrivateer()
+
+	shipsMap[201] = SalvageMiningProspector()
+	shipsMap[202] = SalvageMiningProspector()
+	shipsMap[203] = CourierScout()
+	shipsMap[204] = Merchant()
+	shipsMap[205] = Merchant()
+	shipsMap[206] = Merchant()
+	shipsMap[207] = Patrol()
+	shipsMap[208] = PiratePrivateer()
+	shipsMap[209] = PiratePrivateer()
+	shipsMap[210] = PiratePrivateer()
+
+	shipsMap[301] = SalvageMiningProspector()
+	shipsMap[302] = SalvageMiningProspector()
+	shipsMap[303] = CourierScout()
+	shipsMap[304] = CourierScout()
+	shipsMap[305] = ResearchSurvey()
+	shipsMap[306] = LinerYaht()
+	shipsMap[307] = Merchant()
+	shipsMap[308] = Merchant()
+	shipsMap[309] = Patrol()
+	shipsMap[310] = Warship()
+
+	shipsMap[401] = SalvageMiningProspector()
+	shipsMap[402] = SalvageMiningProspector()
+	shipsMap[403] = CourierScout()
+	shipsMap[404] = ResearchSurvey()
+	shipsMap[405] = LinerYaht()
+	shipsMap[406] = LinerYaht()
+	shipsMap[407] = Merchant()
+	shipsMap[408] = Merchant()
+	shipsMap[409] = Patrol()
+	shipsMap[410] = PiratePrivateer()
+
+	shipsMap[501] = SalvageMiningProspector()
+	shipsMap[502] = SalvageMiningProspector()
+	shipsMap[503] = CourierScout()
+	shipsMap[504] = LinerYaht()
+	shipsMap[505] = Merchant()
+	shipsMap[506] = Merchant()
+	shipsMap[507] = Patrol()
+	shipsMap[508] = PiratePrivateer()
+	shipsMap[509] = PiratePrivateer()
+	shipsMap[510] = PiratePrivateer()
+
+	shipsMap[601] = SalvageMiningProspector()
+	shipsMap[602] = CourierScout()
+	shipsMap[603] = ResearchSurvey()
+	shipsMap[604] = LinerYaht()
+	shipsMap[605] = LinerYaht()
+	shipsMap[606] = Merchant()
+	shipsMap[607] = Merchant()
+	shipsMap[608] = Patrol()
+	shipsMap[609] = Warship()
+	shipsMap[610] = CapitalShip()
+
+	shipsMap[701] = SalvageMiningProspector()
+	shipsMap[702] = SalvageMiningProspector()
+	shipsMap[703] = CourierScout()
+	shipsMap[704] = LinerYaht()
+	shipsMap[705] = LinerYaht()
+	shipsMap[706] = Merchant()
+	shipsMap[707] = Merchant()
+	shipsMap[708] = Merchant()
+	shipsMap[709] = Patrol()
+	shipsMap[710] = PiratePrivateer()
+
+	shipsMap[801] = SalvageMiningProspector()
+	shipsMap[802] = SalvageMiningProspector()
+	shipsMap[803] = SalvageMiningProspector()
+	shipsMap[804] = CourierScout()
+	shipsMap[805] = Merchant()
+	shipsMap[806] = Merchant()
+	shipsMap[807] = Merchant()
+	shipsMap[808] = Patrol()
+	shipsMap[809] = PiratePrivateer()
+	shipsMap[810] = PiratePrivateer()
+
+	ship = shipsMap[key]
+	ship.reaction = reaction()
+	return ship
+
 }
 
 type ship struct {
@@ -69,6 +161,7 @@ type ship struct {
 	cargo       []string
 	spikeDrive  int
 	sensorMod   int
+	reaction    string
 }
 
 func (ship *ship) toStrings() []string {
@@ -98,7 +191,7 @@ func (ship *ship) toStrings() []string {
 			lines = append(lines, ship.cargo[i])
 		}
 	}
-
+	lines = append(lines, "Crew reaction: "+ship.reaction)
 	return lines
 }
 
@@ -432,13 +525,13 @@ func encounterLightCruiser() ship {
 	}
 	if sc == 3 || sc == 4 || sc == 5 {
 		ftrs := roll1dX(3, 2)
-		ship.cargo = append(ship.cargo, "Space Craft: "+strconv.Itoa(ftrs)+" x Fighter")
+		ship.cargo = append(ship.cargo, "Space Craft: "+strconv.Itoa(ftrs)+" x Fighter (No FTL)")
 	}
 	if sc == 6 {
 		ftrs := roll1dX(3, 3)
-		ship.cargo = append(ship.cargo, "Space Craft: "+strconv.Itoa(ftrs)+" x Fighter")
+		ship.cargo = append(ship.cargo, "Space Craft: "+strconv.Itoa(ftrs)+" x Fighter (No FTL)")
 		gnShp := roll1dX(2, 0)
-		ship.cargo = append(ship.cargo, "Space Craft: "+strconv.Itoa(gnShp)+" x Patrol Gunship")
+		ship.cargo = append(ship.cargo, "Space Craft: "+strconv.Itoa(gnShp)+" x Patrol Gunship (No FTL)")
 	}
 	return *ship
 }
@@ -503,60 +596,258 @@ func encounterCarrier() ship {
 	ship.crewSkill = roll1dX(4, 1)
 	ship.spikeDrive = roll1dX(2, 1)
 	ship.crewOnboard = 1000
-	ship.guards = roll1dX(50, 0) * 10 + 500
+	ship.guards = roll1dX(50, 0)*10 + 500
 	ftrs := rollXdY(2, 6) + 20
 	ship.cargo = append(ship.cargo, "Space Craft: "+strconv.Itoa(ftrs)+" x Fighters (no FTL)")
 	gnShp := rollXdY(2, 6) + 3
 	ship.cargo = append(ship.cargo, "Space Craft: "+strconv.Itoa(gnShp)+" x Patrol Gunship (no FTL)")
-		ship.cargo = append(ship.cargo, "Battle Group consist of:")
-		lc := roll1dX(3, -1)
-		cf := roll1dX(3, 2)
-		pf := roll1dX(4, 1)
-		pGnShip := rollXdY(2, 6)
-		if lc > 0 {
-			ship.cargo = append(ship.cargo, "Light Cruiser x "+strconv.Itoa(lc))
-		}
-		ship.cargo = append(ship.cargo, "Combat Frigate x "+strconv.Itoa(cf))
-		ship.cargo = append(ship.cargo, "Patrol Frigate x "+strconv.Itoa(pf))
-		ship.cargo = append(ship.cargo, "Patrol Gunship (with FTL) x "+strconv.Itoa(pGnShip))
+	ship.cargo = append(ship.cargo, "Battle Group consist of:")
+	lc := roll1dX(3, -1)
+	cf := roll1dX(3, 2)
+	pf := roll1dX(4, 1)
+	pGnShip := rollXdY(2, 6)
+	if lc > 0 {
+		ship.cargo = append(ship.cargo, "Light Cruiser x "+strconv.Itoa(lc))
+	}
+	ship.cargo = append(ship.cargo, "Combat Frigate x "+strconv.Itoa(cf))
+	ship.cargo = append(ship.cargo, "Patrol Frigate x "+strconv.Itoa(pf))
+	ship.cargo = append(ship.cargo, "Patrol Gunship (with FTL) x "+strconv.Itoa(pGnShip))
 
 	return *ship
 }
 
-func systemType(security, traffic int) int {
-	if security == safetySecure && traffic == trafficBackwater {
+func encounterPirateIndependent() ship {
+	ship := encounterFreeTraderShip()
+	ship.shipType = "Pirate Free Trader"
+	ship.shipDescr = "Up-gunned Free Trader"
+	ship.crewSkill = roll1dX(4, 1)
+	ship.spikeDrive = roll1dX(2, 1)
+	ship.guards = ship.guards + rollXdY(2, 6)
+	return ship
+}
+
+func encounterPirateGunship() ship {
+	ship := encounterPatrolGunship()
+	ship.shipType = "Pirate Patrol Gunship"
+	ship.shipDescr = "Up-gunned Patrol Gunship"
+	ship.crewSkill = roll1dX(4, 1)
+	ship.spikeDrive = roll1dX(2, 1)
+	ship.guards = ship.guards + rollXdY(2, 6)
+	return ship
+}
+
+func encounterPirateFrigate() ship {
+	ship := encounterPatrolFrigateShip()
+	ship.shipType = "Pirate Patrol Frigate"
+	ship.shipDescr = "Up-gunned Patrol Frigate"
+	ship.crewSkill = roll1dX(4, 1)
+	ship.spikeDrive = roll1dX(2, 1)
+	ship.guards = ship.guards + rollXdY(3, 6)
+	return ship
+}
+
+func encounterPirateLightCruiser() ship {
+	ship := encounterLightCruiser()
+	ship.shipType = "Pirate Light Cruiser"
+	ship.shipDescr = "Up-gunned Light Cruiser"
+	ship.crewSkill = roll1dX(4, 1)
+	ship.spikeDrive = roll1dX(2, 1)
+	ship.guards = ship.guards + (rollXdY(1, 4) * 10)
+	if roll1dX(6, 0) < 5 {
+		ftrs := roll1dX(1, 3) + 3
+		ship.cargo = append(ship.cargo, "Space Craft: "+strconv.Itoa(ftrs)+" x Fighter (No FTL)")
+	}
+	return ship
+}
+
+func encounterPrivateerFreeTrader() ship {
+	ship := encounterFreeTraderShip()
+	ship.shipType = "Privateer Free Trader"
+	ship.shipDescr = "Armed Free Trader"
+	ship.crewSkill = roll1dX(4, 1)
+	ship.spikeDrive = roll1dX(2, 1)
+	ship.guards = ship.guards + rollXdY(2, 6)
+	return ship
+}
+
+func encounterPrivateerGunship() ship {
+	ship := encounterPatrolGunship()
+	ship.shipType = "Patrol Gunship (Privatly Owned)"
+	ship.shipDescr = "Up-gunned Patrol Gunship"
+	ship.crewSkill = roll1dX(4, 1)
+	ship.spikeDrive = roll1dX(2, 1)
+	ship.guards = ship.guards + rollXdY(2, 6)
+	return ship
+}
+
+func encounterPrivateerFrigate() ship {
+	ship := encounterPatrolFrigateShip()
+	ship.shipType = "Patrol Frigate (Privatly Owned)"
+	ship.shipDescr = "Up-gunned Patrol Frigate"
+	ship.crewSkill = roll1dX(4, 1)
+	ship.spikeDrive = roll1dX(2, 1)
+	ship.guards = ship.guards + rollXdY(3, 6)
+	return ship
+}
+
+func errorShip() ship {
+	ship := &ship{}
+	ship.shipDescr = "This is ERROR ship. This Function should not be called"
+	return *ship
+}
+
+func SalvageMiningProspector() ship {
+	r := roll1dX(6, 0)
+	if r == 1 || r == 2 {
+		return encounterSalvageShip()
+	}
+	if r == 3 || r == 4 {
+		return encounterMiningShip()
+	}
+	if r == 5 || r == 6 {
+		return encounterProspectorShip()
+	}
+	return errorShip()
+}
+
+func CourierScout() ship {
+	r := roll1dX(6, 0)
+	if r == 5 || r == 6 {
+		return encounterCourierShip()
+	}
+	return encounterScoutShip()
+}
+
+func ResearchSurvey() ship {
+	r := roll1dX(6, 0)
+	if r == 1 || r == 2 {
+		return encounterResearchShip()
+	}
+	return encounterSurveyShip()
+}
+
+func LinerYaht() ship {
+	r := roll1dX(6, 0)
+	if r == 1 || r == 2 {
+		return encounterLinerShip()
+	}
+	if r == 3 {
+		return encounterCruiseShip()
+	}
+	return encounterYaht()
+}
+
+func Merchant() ship {
+	r := roll1dX(6, 0)
+	if r < 5 {
+		return encounterFreeTraderShip()
+	}
+	if r == 5 {
+		return encounterFreighterShip()
+	}
+	return encounterConvoy()
+}
+
+func Patrol() ship {
+	r := roll1dX(6, 0)
+	if r == 1 || r == 2 {
+		return encounterPatrolFrigateShip()
+	}
+	if r == 3 || r == 4 || r == 5 {
+		return encounterPatrolGunship()
+	}
+	if r == 6 {
+		return encounterFighterWing()
+	}
+	return errorShip()
+}
+
+func Warship() ship {
+	r := roll1dX(6, 0)
+	if r == 1 || r == 2 || r == 3 {
+		return encounterCombatFrigate()
+	}
+	if r == 4 || r == 5 {
+		return encounterLightCruiser()
+	}
+	if r == 6 {
+		return encounterHeavyCruiser()
+	}
+	return errorShip()
+}
+
+func CapitalShip() ship {
+	r := roll1dX(6, 0)
+	if r < 4 {
+		return encounterBattleship()
+	}
+	return encounterCarrier()
+}
+
+func PiratePrivateer() ship {
+	pp := roll1dX(6, 0)
+	if pp < 6 {
+		pirate := roll1dX(6, 0)
+		if pirate < 4 {
+			return encounterPirateIndependent()
+		}
+		if pirate == 4 || pirate == 5 {
+			r := roll1dX(6, 0)
+			if r < 5 {
+				return encounterPirateGunship()
+			}
+			return encounterPirateFrigate()
+		}
+		if pirate == 6 {
+			return encounterPirateLightCruiser()
+		}
+
+	}
+	priv := roll1dX(6, 0)
+	if priv < 4 {
+		return encounterPrivateerFreeTrader()
+	}
+	if priv < 6 {
+		return encounterPrivateerGunship()
+	}
+	return encounterPrivateerFrigate()
+
+}
+
+func systemType(safety, traffic int) int {
+	if safety == safetySecure && traffic == trafficBackwater {
 		//Middle of Nowhere
 		return 1
 	}
-	if security == safetyIndependent && traffic == trafficBackwater {
+	if safety == safetyIndependent && traffic == trafficBackwater {
 		//Middle of Nowhere - not error
 		return 1
 	}
-	if security == safetyDangerous && traffic == trafficBackwater {
+	if safety == safetyDangerous && traffic == trafficBackwater {
 		//Bandit Territory
 		return 2
 	}
-	if security == safetySecure && traffic == trafficStopover {
+	if safety == safetySecure && traffic == trafficStopover {
 		//Going Consern
 		return 3
 	}
-	if security == safetyIndependent && traffic == trafficStopover {
+	if safety == safetyIndependent && traffic == trafficStopover {
 		//Rail Head System
 		return 4
 	}
-	if security == safetyDangerous && traffic == trafficStopover {
+	if safety == safetyDangerous && traffic == trafficStopover {
 		//Wild West System
 		return 5
 	}
-	if security == safetySecure && traffic == trafficHub {
+	if safety == safetySecure && traffic == trafficHub {
 		//Capital System
 		return 6
 	}
-	if security == safetyIndependent && traffic == trafficHub {
+	if safety == safetyIndependent && traffic == trafficHub {
 		//Bazaar System
 		return 7
 	}
-	if security == safetyDangerous && traffic == trafficHub {
+	if safety == safetyDangerous && traffic == trafficHub {
 		//Hive of Scum and Vilanity
 		return 8
 	}
@@ -589,22 +880,58 @@ func encounter(system, location int) string {
 	return key
 }
 
+func reaction() string {
+	rea := rollXdY(2, 6)
+	if rea < 3 {
+		return "Hostile. Will take risks to harm PC. Attack, interfere, escape, flee. The crew hates PC and will do their best to fight them."
+	}
+	if rea < 6 {
+		return "Unfriendly. Wishes the PC ill. Avoid. insult, lie, misdirect, mislead, waste time. The crew hates PC but is unwilling to resort to direct action. However every moment wasted is anothe moment reinforcement closes in."
+	}
+	if rea < 9 {
+		return "Indifferent. Any socialy acceptable action. The crew will comply to force but otherwise unhelpful."
+	}
+	if rea < 12 {
+		return "Friendly. Not looking for trouble. will comply. Chat, offer limited help. The crew have protocol to give pirates what they want to minimize any risk of harm."
+	}
+	return "Helpful. Heal, aid, support. Ideologicaly inclined to help."
+}
+
 func main() {
 	seed := randomSeed()
 	fmt.Println("seed:", seed)
-	//a1, _ := TakeOptions("System Safety:", "Secure", "Independent", "Hub")
-	//fmt.Println("result:", a1-1)
+	a1, b1 := TakeOptions("System Safety:", "Secure", "Independent", "Dangerous")
+	fmt.Println("result:", a1-1, b1)
+	safety := a1 - 1
+	a2, b2 := TakeOptions("System Traffic:", "Backwater", "Stopover", "Hub")
+	fmt.Println("result:", a2-1, b2)
+	traffic := a2 - 1
+	a3, b3 := TakeOptions("System Location:", "Main World", "Arrival", "Gas Gigant", "Asteriod Belt", "Periphery")
+	fmt.Println("result:", a3-1, b3)
+	location := a3 - 1
+	// terrainMainworld    = 0
+	// terrainArrival      = 1
+	// terrainGasGigant    = 2
+	// terrainAsteroidBelt = 3
+	// terrainPeriphery    = 4
+	system := systemType(safety, traffic)
+	key := encKey(safety, traffic, location)
+	fmt.Println("---KEY = "+strconv.Itoa(key), "---", encounterMap()[key], system)
+	if encounterMap()[key] == "Ship" {
+		fmt.Println("--------------------")
+		reportShip(shipEncounter(system))
+	}
 
-	fmt.Println("--------------------")
-	reportShip(encounterCarrier())
-	fmt.Println("--------------------")
-	reportShip(encounterCarrier())
-	fmt.Println("--------------------")
-	reportShip(encounterCarrier())
+	// fmt.Println("--------------------")
+	// reportShip(encounterPirateLightCruiser())
+	// fmt.Println("--------------------")
+	// reportShip(encounterPirateLightCruiser())
+	// fmt.Println("--------------------")
+	// reportShip(encounterPirateLightCruiser())
 
 }
 
-func encounterKey(safety, traffic, terrain int) int {
+func encKey(safety, traffic, terrain int) int {
 	r := roll1dX(6, 0)
 	syst := systemType(safety, traffic)
 	return (syst * 100) + (terrain * 10) + r
