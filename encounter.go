@@ -195,8 +195,8 @@ func (ship *ship) toStrings() []string {
 	return lines
 }
 
-func reportShip(ship ship) {
-	lines := ship.toStrings()
+func reportShip(shp ship) {
+	lines := shp.toStrings()
 	for i := range lines {
 		str := lines[i]
 		fmt.Println(str)
@@ -205,7 +205,7 @@ func reportShip(ship ship) {
 
 func encounterSalvageShip() ship {
 	ship := &ship{}
-	ship.shipType = "Salvage Ship"
+	ship.shipType = "Salvage Ship" 
 	ship.shipClass = "Frigate"
 	ship.guards = 7
 	ship.crewOnboard = roll1dX(3, 3)
@@ -897,40 +897,6 @@ func reaction() string {
 	return "Helpful. Heal, aid, support. Ideologicaly inclined to help."
 }
 
-func main() {
-	seed := randomSeed()
-	fmt.Println("seed:", seed)
-	a1, b1 := TakeOptions("System Safety:", "Secure", "Independent", "Dangerous")
-	fmt.Println("result:", a1-1, b1)
-	safety := a1 - 1
-	a2, b2 := TakeOptions("System Traffic:", "Backwater", "Stopover", "Hub")
-	fmt.Println("result:", a2-1, b2)
-	traffic := a2 - 1
-	a3, b3 := TakeOptions("System Location:", "Main World", "Arrival", "Gas Gigant", "Asteriod Belt", "Periphery")
-	fmt.Println("result:", a3-1, b3)
-	location := a3 - 1
-	// terrainMainworld    = 0
-	// terrainArrival      = 1
-	// terrainGasGigant    = 2
-	// terrainAsteroidBelt = 3
-	// terrainPeriphery    = 4
-	system := systemType(safety, traffic)
-	key := encKey(safety, traffic, location)
-	fmt.Println("---KEY = "+strconv.Itoa(key), "---", encounterMap()[key], system)
-	if encounterMap()[key] == "Ship" {
-		fmt.Println("--------------------")
-		reportShip(shipEncounter(system))
-	}
-
-	// fmt.Println("--------------------")
-	// reportShip(encounterPirateLightCruiser())
-	// fmt.Println("--------------------")
-	// reportShip(encounterPirateLightCruiser())
-	// fmt.Println("--------------------")
-	// reportShip(encounterPirateLightCruiser())
-
-}
-
 func encKey(safety, traffic, terrain int) int {
 	r := roll1dX(6, 0)
 	syst := systemType(safety, traffic)
@@ -1236,4 +1202,9 @@ func encounterMap() map[int]string {
 	encMap[846] = "None"
 
 	return encMap
+}
+
+func (sh *ship) sensorRoll() int {
+	sr := rollXdY(2, 6) + sh.crewSkill + sh.sensorMod
+	return sr
 }
